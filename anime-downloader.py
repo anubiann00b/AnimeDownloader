@@ -1,18 +1,20 @@
-import requests
-import re
 from bs4 import BeautifulSoup
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
+import re
+import requests
 import subprocess
 
 # Based off of http://stackoverflow.com/a/16696317/2197700
 def download_file(url):
-    local_filename = url.split('/')[-1]
-    r = requests.get(url, stream=True)
-    with open(local_filename, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024): 
-            if chunk:
-                f.write(chunk)
-                f.flush()
-    return local_filename
+	local_filename = url.split('/')[-1]
+	r = requests.get(url, stream=True)
+	with open(local_filename, 'wb') as f:
+		for chunk in r.iter_content(chunk_size=1024): 
+			if chunk:
+				f.write(chunk)
+				f.flush()
+	return local_filename
 
 # Utility/debugging method
 def write_file(file, soup):
@@ -24,8 +26,8 @@ soup = BeautifulSoup(requests.get('http://www.chia-anime.com/index').content)
 anime_name = raw_input('Enter an anime: ')
 
 for link in soup.find_all(href=re.compile('(http://www.chia-anime.com/category/)')):
-	if (link.get('href')[35:] == anime_name):
-		print 'Found ' + anime_name + '!'
+	if (fuzz.token_set_ratio(link.get('href')[35:], anime_name) >= 90):
+		print 'Found ' + link.get('href')[35:] + '!'
 		break;
 else:
 	print 'Anime not found: ' + anime_name + '.'
