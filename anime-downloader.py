@@ -3,9 +3,6 @@ import re
 from bs4 import BeautifulSoup
 import subprocess
 
-# http://cache2.animepremium.tv:8880/downloadcache/32t0CFNAjlzSRp2TCO_-dQ/1416971125/nxqvstt7mlkv-650x370.html.mp4/Sword-Art-Online-Episode-2-chia-anime.com.mp4
-# http://a.pomf.se/pgsiqq.exe
-
 def download_file(url):
     local_filename = url.split('/')[-1]
     # NOTE the stream=True parameter
@@ -17,7 +14,24 @@ def download_file(url):
                 f.flush()
     return local_filename
 
-download_file("http://cache2.animepremium.tv:8880/downloadcache/32t0CFNAjlzSRp2TCO_-dQ/1416971125/nxqvstt7mlkv-650x370.html.mp4/Sword-Art-Online-Episode-2-chia-anime.com.mp4");
+# download_file("http://cache2.animepremium.tv:8880/downloadcache/32t0CFNAjlzSRp2TCO_-dQ/1416971125/nxqvstt7mlkv-650x370.html.mp4/Sword-Art-Online-Episode-2-chia-anime.com.mp4");
+
+soup = BeautifulSoup(requests.get("http://www.chia-anime.com/index").content)
+
+anime_name = raw_input('Enter an anime: ')
+
+for link in soup.find_all(href=re.compile("(http://www.chia-anime.com/category/)")):
+	if (link.get('href')[35:] == anime_name):
+		print 'Found ' + anime_name + '!'
+		break;
+else:
+	print 'Anime not found: ' + anime_name + '.'
+	quit()
+
+# http://www.chia-anime.com/category/zipang
+soup = BeautifulSoup(requests.get('http://www.chia-anime.com/category/' + anime_name).content)
+
+
 
 '''
 results = soup.find_all(href=re.compile("(http).*(pdf)"))
