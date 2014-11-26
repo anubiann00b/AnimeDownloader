@@ -50,3 +50,4 @@ downloadLink = soup.find_all(href=re.compile('(animepremium.tv:8880/downloadcach
 
 print 'Downloading!'
 download_file(downloadLink)
+print 'Sucess!'
