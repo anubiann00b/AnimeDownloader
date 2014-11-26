@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 import re
 import requests
 import subprocess
