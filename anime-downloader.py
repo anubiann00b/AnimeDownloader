@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 import re
 import requests
-import subprocess
 
 # Based off of http://stackoverflow.com/a/16696317/2197700
 def download_file(url):
@@ -22,14 +21,15 @@ def write_file(file, soup):
 
 soup = BeautifulSoup(requests.get('http://www.chia-anime.com/index').content)
 
-anime_name = raw_input('Enter an anime: ')
+anime_name_input = raw_input('Enter an anime: ')
 
 for link in soup.find_all(href=re.compile('(http://www.chia-anime.com/category/)')):
-	if (fuzz.token_set_ratio(link.get('href')[35:], anime_name) >= 90):
-		print 'Found ' + link.get('href')[35:] + '!'
+	anime_name = link.get('href')[35:]
+	if (fuzz.token_set_ratio(anime_name, anime_name_input) >= 90):
+		print 'Found ' + anime_name + '!'
 		break;
 else:
-	print 'Anime not found: ' + anime_name + '.'
+	print 'Anime not found: ' + anime_name_input + '.'
 	quit()
 
 soup = BeautifulSoup(requests.get('http://www.chia-anime.com/category/' + anime_name).content)
