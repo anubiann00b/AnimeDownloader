@@ -1,10 +1,12 @@
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 import re
 import requests
 
 # Based off of http://stackoverflow.com/a/16696317/2197700
 def download_file(url):
+	print 'Downloading!'
 	local_filename = url.split('/')[-1]
 	r = requests.get(url, stream=True)
 	with open(local_filename, 'wb') as f:
@@ -12,6 +14,7 @@ def download_file(url):
 			if chunk:
 				f.write(chunk)
 				f.flush()
+	print 'Done!'
 	return local_filename
 
 # Utility/debugging method
@@ -23,7 +26,7 @@ soup = BeautifulSoup(requests.get('http://www.chia-anime.com/index').content)
 
 anime_name_input = raw_input('Enter an anime: ')
 
-for link in soup.find_all(href=re.compile('(http://www.chia-anime.com/category/)')):
+for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/category/)')):
 	anime_name = link.get('href')[35:]
 	if (fuzz.token_set_ratio(anime_name, anime_name_input) >= 90):
 		print 'Found ' + anime_name + '!'
@@ -35,20 +38,38 @@ else:
 soup = BeautifulSoup(requests.get('http://www.chia-anime.com/category/' + anime_name).content)
 episode = raw_input('Enter an episode: ')
 
-for link in soup.find_all(href=re.compile('(http://www.chia-anime.com/' + anime_name + '/' + anime_name + ')')):
-	if (link.get('href')[68:] == episode):
+anime_url = anime_name
+if (anime_name[-5:] == 'anime'):
+	anime_url = anime_name[:-6]
+
+print 'http://www.chia-anime.com/' + anime_name + '/' + anime_url
+
+for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/' + anime_name + '\\/' + anime_url + ')')):
+	href = link.get('href') # http://www.chia-anime.com/gun-x-sword-anime/gun-x-sword-episode-5
+	startIndex = href.find(anime_name) + len(anime_name) + len(anime_url) + 10
+	endIndex = href.find('-', startIndex)
+	if endIndex == -1:
+		endIndex = len(href)
+	if (link.get('href')[startIndex:endIndex] == episode):
 		print 'Found episode ' + episode + '!'
 		break;
 else:
 	print 'Episode not found: ' + episode + '.'
 	quit()
 
-soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/' + anime_name + '-episode-' + episode).content)
-downloadPage = soup.find_all(href=re.compile('(http://download.animepremium.tv/get/)'))[0].get('href')
+soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-episode-' + episode).content)
+print 'http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-episode-' + episode
+downloadPage = soup.find_all(href=re.compile('(http:\\/\\/download\\.animepremium\\.tv\\/get)'))[0].get('href')
+
+print downloadPage
 
 soup = BeautifulSoup(requests.get(downloadPage).content)
-downloadLink = soup.find_all(href=re.compile('(animepremium.tv:8880/downloadcache)'))[0].get('href')
-
-print 'Downloading!'
-download_file(downloadLink)
-print 'Sucess!'
+for link in soup.find_all(href=re.compile('(animepremium\\.tv:8880\\/downloadcache)')):
+	download_file(link.get('href'))
+	break;
+else:
+	print "nf"
+	for link in soup.find_all(href=re.compile('.mp4\\/')):
+		print 'http://download.animepremium.tv/get/' + link.get('href')
+		download_file('http://download.animepremium.tv/get/' + link.get('href'))
+		break;
