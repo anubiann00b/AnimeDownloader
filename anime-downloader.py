@@ -35,9 +35,10 @@ for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/ca
 anime_name, anime_score = process.extractOne(anime_name_input, animes)
 
 if (anime_score >= 75):
-	print 'Found ' + anime_name + '!'
+	print 'Found ' + anime_name + '! (Score: ' + str(anime_score) + ').'
 else:
 	print 'Anime not found: ' + anime_name_input + '.'
+	print 'Best match: ' + anime_name + ' (' + str(anime_score) + ').'
 	quit()
 
 soup = BeautifulSoup(requests.get('http://www.chia-anime.com/category/' + anime_name).content)
