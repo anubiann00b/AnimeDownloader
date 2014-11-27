@@ -26,11 +26,16 @@ soup = BeautifulSoup(requests.get('http://www.chia-anime.com/index').content)
 
 anime_name_input = raw_input('Enter an anime: ')
 
+animes = []
+
 for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/category/)')):
 	anime_name = link.get('href')[35:]
-	if (fuzz.token_set_ratio(anime_name, anime_name_input) >= 90):
-		print 'Found ' + anime_name + '!'
-		break;
+	animes.append(anime_name)
+
+anime_name, anime_score = process.extractOne(anime_name_input, animes)
+
+if (anime_score >= 75):
+	print 'Found ' + anime_name + '!'
 else:
 	print 'Anime not found: ' + anime_name_input + '.'
 	quit()
