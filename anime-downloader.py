@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from clint.textui import progress
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import re
@@ -10,10 +11,14 @@ def download_file(url):
 	local_filename = url.split('/')[-1]
 	r = requests.get(url, stream=True)
 	with open(local_filename, 'wb') as f:
-		for chunk in r.iter_content(chunk_size=1024): 
+		cnt = 0;
+		print str(cnt) + ' MB',
+		for chunk in r.iter_content(chunk_size=1024):
 			if chunk:
 				f.write(chunk)
 				f.flush()
+				cnt += 1
+				print '\r' + str(cnt) + ' MB',
 	print 'Done!'
 	return local_filename
 
@@ -48,8 +53,6 @@ anime_url = anime_name
 if (anime_name[-5:] == 'anime'):
 	anime_url = anime_name[:-6]
 
-print 'http://www.chia-anime.com/' + anime_name + '/' + anime_url
-
 for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/' + anime_name + '\\/' + anime_url + ')')):
 	href = link.get('href') # http://www.chia-anime.com/gun-x-sword-anime/gun-x-sword-episode-5
 	startIndex = href.find(anime_name) + len(anime_name) + len(anime_url) + 10
@@ -74,3 +77,5 @@ else:
 	for link in soup.find_all(href=re.compile('.mp4\\/')):
 		download_file('http://download.animepremium.tv/get/' + link.get('href'))
 		break;
+	else:
+		print 'Error.'
