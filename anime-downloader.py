@@ -54,7 +54,7 @@ if (anime_name[-5:] == 'anime'):
 	anime_url = anime_name[:-6]
 
 for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/' + anime_name + '\\/' + anime_url + ')')):
-	href = link.get('href') # http://www.chia-anime.com/gun-x-sword-anime/gun-x-sword-episode-5
+	href = link.get('href')
 	startIndex = href.find(anime_name) + len(anime_name) + len(anime_url) + 10
 	endIndex = href.find('-', startIndex)
 	if endIndex == -1:
