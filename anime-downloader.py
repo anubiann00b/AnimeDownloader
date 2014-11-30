@@ -70,11 +70,12 @@ soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/
 downloadPage = soup.find_all(href=re.compile('(http:\\/\\/download\\.animepremium\\.tv\\/get)'))[0].get('href')
 
 soup = BeautifulSoup(requests.get(downloadPage).content)
-for link in soup.find_all(href=re.compile('(animepremium\\.tv:8880\\/downloadcache)')):
+for link in soup.find_all(href=re.compile('(animepremium\\.tv:8880\\/download)')):
 	download_file(link.get('href'))
 	break;
 else:
 	for link in soup.find_all(href=re.compile('.mp4\\/')):
+		print 'http://download.animepremium.tv/get/' + link.get('href')
 		download_file('http://download.animepremium.tv/get/' + link.get('href'))
 		break;
 	else:
