@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from clint.textui import progress
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import re
