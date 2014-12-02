@@ -94,7 +94,6 @@ def download_anime(anime_name_input, episode):
 def show_help():
 	print 'Usage: anime-downloader.py [anime] [episode]'
 
-print str(sys.argv)
 if len(sys.argv) != 3:
 	show_help()
 else:
