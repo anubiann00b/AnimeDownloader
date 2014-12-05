@@ -1,3 +1,4 @@
 beautifulsoup4==4.3.2
 fuzzywuzzy==0.4.0
 requests==2.4.3
+python-Levenshtein==0.11.2
