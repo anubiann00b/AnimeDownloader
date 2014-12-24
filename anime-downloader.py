@@ -22,48 +22,48 @@ def download_file(url):
 	print 'Done!'
 	return local_filename
 
-# Utility/debugging method
-def write_file(file, soup):
-	with open(file, 'a') as out:
-		out.write(soup.prettify().encode('utf-8','replace'))
-
 def download_anime(anime_name_input, episode):
 	soup = BeautifulSoup(requests.get('http://www.chia-anime.com/index').content)
 
 	animes = []
 
-	for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/category/)')):
+	# Get anime pages from index page
+	for link in soup.find_all(href=re.compile(re.escape('http://www.chia-anime.com/category/'))):
 		anime_name = link.get('href')[35:]
 		animes.append(anime_name)
 
+	# Get the best matching anime from the list compared to the user supplied name
 	anime_name, anime_score = process.extractOne(anime_name_input, animes)
 
-	if (anime_score >= 75):
+	if anime_score >= 75:
 		print 'Found ' + anime_name + '! (Score: ' + str(anime_score) + ').'
 	else:
 		print 'Anime not found: ' + anime_name_input + '.'
 		print 'Best match: ' + anime_name + ' (' + str(anime_score) + ').'
 		quit()
 
+	# Get the anime page
 	soup = BeautifulSoup(requests.get('http://www.chia-anime.com/category/' + anime_name).content)
 
+	# Deal with some weird naming stuff
 	anime_url = anime_name
-	if (anime_name[-5:] == 'anime'):
+	if anime_name[-5:] == 'anime':
 		anime_url = anime_name[:-6]
 
 	urlHasEpisode = True
 
-	for link in soup.find_all(href=re.compile('(http:\\/\\/www\\.chia-anime\\.com/' + anime_name + '\\/' + anime_url + ')')):
+	# Get the anime episode download link
+	for link in soup.find_all(href=re.compile(re.escape('http://www.chia-anime.com/' + anime_name + '/' + anime_url))):
 		href = link.get('href')
 		startIndex = href.find(anime_name) + len(anime_name) + len(anime_url) + 10
 		endIndex = href.find('-', startIndex)
 		if endIndex == -1:
 			endIndex = len(href)
-		if (link.get('href')[startIndex:endIndex] == episode):
+		if link.get('href')[startIndex:endIndex] == episode:
 			print 'Found episode ' + episode + '!'
 			break;
 		else:
-			startIndex -= 8 # No 'eouside'
+			startIndex -= 8 # No 'episode' in download URL
 			if (link.get('href')[startIndex:endIndex] == episode):
 				print 'Found episode ' + episode + '!'
 				urlHasEpisode = False
@@ -72,18 +72,22 @@ def download_anime(anime_name_input, episode):
 		print 'Episode not found: ' + episode + '.'
 		quit()
 
-	if (urlHasEpisode):
+	# Get the episode page
+	if urlHasEpisode:
 		soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-episode-' + episode).content)
 	else:
 		soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-' + episode).content)
-	downloadPage = soup.find_all(href=re.compile('(http:\\/\\/download\\.animepremium\\.tv\\/get)'))[0].get('href')
 
+	# Find the download page link
+	downloadPage = soup.find_all(href=re.compile(re.escape('http://download.animepremium.tv/get')))[0].get('href')
+
+	# Get the direct link to the file, either in the form 'animepremium.tv:8880/download' or '.mp4'.
 	soup = BeautifulSoup(requests.get(downloadPage).content)
-	for link in soup.find_all(href=re.compile('(animepremium\\.tv:8880\\/download)')):
+	for link in soup.find_all(href=re.compile(re.escape('animepremium.tv:8880/download'))):
 		download_file(link.get('href'))
 		break;
 	else:
-		for link in soup.find_all(href=re.compile('.mp4\\/')):
+		for link in soup.find_all(href=re.compile(re.escape('.mp4/'))):
 			print 'http://download.animepremium.tv/get/' + link.get('href')
 			download_file('http://download.animepremium.tv/get/' + link.get('href'))
 			break;
