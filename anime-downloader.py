@@ -74,11 +74,13 @@ def download_anime(anime_name_input, episode):
     # Get the episode page
     if urlHasEpisode:
         soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-episode-' + episode).content)
+        print 'http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-episode-' + episode
     else:
         soup = BeautifulSoup(requests.get('http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-' + episode).content)
+        print 'http://www.chia-anime.com/' + anime_name + '/' + anime_url + '-' + episode
 
     # Find the download page link
-    downloadPage = soup.find_all(href=re.compile(re.escape('http://download.animepremium.tv/get')))[0].get('href')
+    downloadPage = soup.find_all(href=re.compile(re.escape('http://download.animepremium.tv/video')))[0].get('href')
 
     # Get the direct link to the file, either in the form 'animepremium.tv:8880/download' or '.mp4'.
     soup = BeautifulSoup(requests.get(downloadPage).content)
